@@ -21,22 +21,142 @@
                     <span class="stat-value" id="season">Summer</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-label">Days Elapsed:</span>
-                    <span class="stat-value" id="daysElapsed">0</span>
+                    <span class="stat-label">Week:</span>
+                    <span class="stat-value" id="week">1</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">Status:</span>
-                    <span class="stat-value" id="dayStatus">☀️ Normal Day</span>
+                    <span class="stat-value" id="dayStatus">☀️ Normal</span>
                 </div>
             </div>
         </div>
 
-        <!-- Game Board -->
-        <div class="game-board">
-            <!-- House visualization -->
-            <div class="house-container">
-                <div class="house-status">
-                    <h2>Your House Status</h2>
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Panel - House Visualization -->
+            <div class="left-panel">
+                <div class="visualization-wrapper">
+                    <svg class="environment-svg" viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                        <!-- Sky -->
+                        <rect id="skyBackground" x="0" y="0" width="600" height="350" fill="#87CEEB"/>
+                        
+                        <!-- Sun/Storm indicator -->
+                        <circle id="weatherIndicator" cx="520" cy="50" r="30" fill="#FFD700"/>
+                        
+                        <!-- Rain -->
+                        <g id="rainContainer" opacity="0"></g>
+                        
+                        <!-- Wind particles -->
+                        <g id="windContainer" opacity="0"></g>
+                        
+                        <!-- Debris -->
+                        <g id="debrisContainer" opacity="0"></g>
+                        
+                        <!-- Ground level -->
+                        <rect x="0" y="350" width="600" height="50" fill="#8B7355"/>
+                        
+                        <!-- Water/Flood level -->
+                        <rect id="waterBackground" x="0" y="400" width="600" height="300" fill="#1E88E5"/>
+                        
+                        <rect id="waterLevel" x="0" y="400" width="600" height="0" fill="#0D47A1" opacity="0.8"/>
+                        
+                        <!-- Dikes/Levees -->
+                        <g id="dikesLeft">
+                            <polygon id="dikeLeftBase" points="80,350 100,350 110,320 70,320" fill="#696969" stroke="#404040" stroke-width="2"/>
+                        </g>
+                        <g id="dikesRight">
+                            <polygon id="dikeRightBase" points="520,350 540,350 550,320 490,320" fill="#696969" stroke="#404040" stroke-width="2"/>
+                        </g>
+                        
+                        <!-- House Group -->
+                        <g id="houseGroup">
+                            <!-- Attic/Roof (Top) -->
+                            <polygon id="roofElement" points="200,80 300,20 400,80" fill="#D32F2F" stroke="#B71C1C" stroke-width="3"/>
+                            
+                            <!-- Attic Windows -->
+                            <rect x="280" y="50" width="20" height="20" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- 2nd Floor (Bedroom/Bathroom) -->
+                            <rect id="floor2" x="200" y="120" width="200" height="90" fill="#D4A574" stroke="#8B7355" stroke-width="2"/>
+                            
+                            <!-- 2nd Floor Windows -->
+                            <rect x="220" y="140" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            <rect x="270" y="140" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            <rect x="352" y="140" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- 1st Floor (Living Room) -->
+                            <rect id="floor1" x="200" y="210" width="200" height="90" fill="#C19A6B" stroke="#8B7355" stroke-width="2"/>
+                            
+                            <!-- 1st Floor Windows -->
+                            <rect x="220" y="230" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            <rect x="270" y="230" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            <rect x="352" y="230" width="28" height="28" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- Ground Floor (Kitchen/Pool/Garage) -->
+                            <rect id="floor0" x="200" y="300" width="200" height="100" fill="#A0826D" stroke="#654321" stroke-width="2"/>
+                            
+                            <!-- Ground Floor Windows -->
+                            <rect x="220" y="320" width="30" height="30" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            <rect x="352" y="320" width="30" height="30" fill="#87CEEB" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- Garage Door -->
+                            <rect x="220" y="350" width="50" height="40" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                            
+                            <!-- Front Door -->
+                            <rect x="345" y="360" width="35" height="40" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                            <circle cx="378" cy="380" r="2" fill="#FFD700"/>
+                        </g>
+                        
+                        <!-- Hurricane Room (Concrete bunker on ground floor) -->
+                        <g id="hurricaneRoom" opacity="0">
+                            <rect x="270" y="315" width="80" height="80" fill="#505050" stroke="#FFD700" stroke-width="3"/>
+                            <text x="310" y="360" text-anchor="middle" font-size="24">🛡️</text>
+                        </g>
+                        
+                        <!-- Backup Generator (in Attic) -->
+                        <g id="generatorIcon" opacity="0">
+                            <rect x="285" y="25" width="30" height="30" fill="#FFD700" stroke="#FF6B6B" stroke-width="2" rx="3"/>
+                            <text x="300" y="47" text-anchor="middle" font-size="14">⚙️</text>
+                        </g>
+                        
+                        <!-- HVAC System (in Attic) -->
+                        <g id="hvacIcon" opacity="0">
+                            <rect x="320" y="25" width="30" height="30" fill="#4DB8FF" stroke="#0277BD" stroke-width="2" rx="3"/>
+                            <text x="335" y="47" text-anchor="middle" font-size="14">❄️</text>
+                        </g>
+                        
+                        <!-- Water level markers -->
+                        <text x="560" y="410" font-size="11" fill="#fff" font-weight="bold">0 ft</text>
+                        <text x="560" y="330" font-size="11" fill="#654321" font-weight="bold">Gnd</text>
+                        <text x="560" y="240" font-size="11" fill="#333" font-weight="bold">1st</text>
+                        <text x="560" y="150" font-size="11" fill="#333" font-weight="bold">2nd</text>
+                        <text x="560" y="60" font-size="11" fill="#333" font-weight="bold">Attic</text>
+                    </svg>
+                </div>
+
+                <!-- Stats Sidebar Below Visualization -->
+                <div class="stats-panel">
+                    <h3>📊 Environmental Factors</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Wind Speed:</span>
+                            <span class="stat-value" id="windSpeed">5 mph</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Water Height:</span>
+                            <span class="stat-value" id="waterHeight">0 ft</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Sea Level:</span>
+                            <span class="stat-value" id="seaLevelRise">3.0 ft</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Storm Surge:</span>
+                            <span class="stat-value" id="stormSurge">0 ft</span>
+                        </div>
+                    </div>
+
+                    <h3>🏠 Systems Status</h3>
                     <div class="systems-grid">
                         <div class="system bedroom" id="systemBedroom">
                             <span class="system-icon">🛏️</span>
@@ -46,11 +166,6 @@
                         <div class="system bathroom" id="systemBathroom">
                             <span class="system-icon">🚿</span>
                             <span class="system-name">Bathroom</span>
-                            <span class="system-status">✓</span>
-                        </div>
-                        <div class="system kitchen" id="systemKitchen">
-                            <span class="system-icon">🍳</span>
-                            <span class="system-name">Kitchen</span>
                             <span class="system-status">✓</span>
                         </div>
                         <div class="system electrical" id="systemElectrical">
@@ -65,55 +180,23 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Flood visualization -->
-                <div class="flood-visualization" id="floodVisualization">
-                    <div class="water-level" id="waterLevel"></div>
-                    <div class="house-floors">
-                        <div class="floor ground-floor" id="floorGround">
-                            <span class="floor-label">Ground</span>
-                        </div>
-                        <div class="floor first-floor" id="floorFirst">
-                            <span class="floor-label">1st</span>
-                        </div>
-                        <div class="floor second-floor" id="floorSecond">
-                            <span class="floor-label">2nd</span>
-                        </div>
-                        <div class="floor roof" id="floorRoof">
-                            <span class="floor-label">Roof</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Weather info and stats -->
-            <div class="weather-stats">
-                <h3 id="weatherTitle">Current Conditions</h3>
-                <div class="weather-info">
-                    <div class="weather-item">
-                        <span class="weather-label">Wind Speed:</span>
-                        <span class="weather-value" id="windSpeed">5 mph</span>
-                    </div>
-                    <div class="weather-item">
-                        <span class="weather-label">Water Height:</span>
-                        <span class="weather-value" id="waterHeight">0 ft</span>
-                    </div>
-                    <div class="weather-item">
-                        <span class="weather-label">Storm Surge:</span>
-                        <span class="weather-value" id="stormSurge">0 ft</span>
-                    </div>
-                    <div class="weather-item">
-                        <span class="weather-label">Sea Level Rise:</span>
-                        <span class="weather-value" id="seaLevelRise">0 ft</span>
-                    </div>
-                    <div class="weather-item">
-                        <span class="weather-label">Hurricane Chance:</span>
-                        <span class="weather-value" id="hurricaneChance">5%</span>
+            <!-- Right Panel - Weather Forecast & Defense Info -->
+            <div class="right-panel">
+                <div class="forecast-container">
+                    <h3>🌦️ 10-Week Forecast</h3>
+                    <div id="forecastDisplay" class="forecast-grid">
+                        <!-- Dynamically populated -->
                     </div>
                 </div>
 
-                <h3>Active Defenses</h3>
-                <div id="defensesList" class="defenses-list"></div>
+                <div class="defenses-container">
+                    <h3>🛡️ Active Defenses</h3>
+                    <div id="defensesList" class="defenses-list">
+                        <p style="color: #999; font-size: 12px;">No active defenses</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -124,13 +207,13 @@
                 <div class="resource-meter">
                     <div class="resource-fill" id="elixirFill"></div>
                 </div>
-                <span class="resource-value"><span id="elixirCurrent">10</span>/10</span>
+                <span class="resource-value"><span id="elixirCurrent">5</span>/20</span>
             </div>
         </div>
 
         <!-- Card Selection -->
         <div class="cards-container">
-            <h3>Available Defenses</h3>
+            <h3>Available Defenses - Drag to Deploy</h3>
             <div class="cards-grid" id="cardsGrid"></div>
         </div>
 
@@ -148,26 +231,28 @@
             <div class="modal-content">
                 <h2>How to Play</h2>
                 <p><strong>Objective:</strong> Protect your Miami house from increasingly severe hurricanes from 2025 to 2100!</p>
-                <p><strong>Goal:</strong> Keep all 5 essential systems functional throughout the 75-year timeline:</p>
+                <p><strong>Win Condition:</strong> Keep these 4 systems functional:</p>
                 <ul>
-                    <li>🛏️ Bedroom</li>
-                    <li>🚿 Bathroom</li>
-                    <li>🍳 Kitchen</li>
-                    <li>⚡ Electrical System</li>
-                    <li>❄️ Cooling System</li>
+                    <li>🛏️ Bedroom (2nd Floor)</li>
+                    <li>🚿 Bathroom (2nd Floor)</li>
+                    <li>⚡ Electrical System (Attic)</li>
+                    <li>❄️ Cooling System (Attic)</li>
                 </ul>
-                <p><strong>Game Progression:</strong></p>
+                <p><strong>Defense Cards:</strong></p>
                 <ul>
-                    <li>⛅ <strong>Normal Days:</strong> Rest and recovery periods</li>
-                    <li>🌀 <strong>Hurricane Days:</strong> Intense storms with high water levels</li>
-                    <li>🌊 Hurricane frequency and intensity increase every decade</li>
-                    <li>📈 Sea level gradually rises throughout the game</li>
+                    <li><strong>Dikes/Levees:</strong> Build protective barriers. Cost scales with height (1 elixir per foot). Permanent.</li>
+                    <li><strong>Elevate Structure:</strong> Raise entire house 3 feet. Cost 4 elixir. Can stack! Permanent.</li>
+                    <li><strong>Backup Generator:</strong> Protects electrical system. Cost 3 elixir. Downtime 3 days if it fails.</li>
+                    <li><strong>Aerodynamic Roof:</strong> Strengthens roof. Cost 2 elixir. Downtime 2 days if it fails.</li>
+                    <li><strong>Hurricane Room:</strong> Build reinforced safe room. Cost 5 elixir. Immune to flooding. Permanent.</li>
                 </ul>
-                <p><strong>Mechanics:</strong></p>
+                <p><strong>Game Mechanics:</strong></p>
                 <ul>
-                    <li>Drag cards to deploy defenses</li>
-                    <li>Each card costs "Budget Points" and regenerates over time</li>
-                    <li>Some defenses have damage chances and downtime</li>
+                    <li>⛅ Normal Days: Budget regenerates. Safe to build.</li>
+                    <li>🌀 Hurricane Days: Defenses can fail if not prepared. Budget regenerates slowly.</li>
+                    <li>🌊 Sea level rises 5 feet by 2100 (from 3 ft baseline)</li>
+                    <li>💨 Wind speeds reach 150+ mph by 2100</li>
+                    <li>Cards last forever once deployed (unless they fail on a hurricane day)</li>
                 </ul>
                 <button onclick="closeInfo()" class="btn btn-primary">Start Game</button>
             </div>
