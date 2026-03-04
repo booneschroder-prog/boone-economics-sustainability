@@ -43,6 +43,9 @@
                         <!-- Sun/Storm indicator -->
                         <circle id="weatherIndicator" cx="520" cy="50" r="30" fill="#FFD700"/>
                         
+                        <!-- Hurricane category indicator -->
+                        <text id="hurricaneCategory" x="520" y="60" text-anchor="middle" font-size="20" font-weight="bold" fill="#fff" opacity="0">CAT 0</text>
+                        
                         <!-- Rain -->
                         <g id="rainContainer" opacity="0"></g>
                         
@@ -119,10 +122,16 @@
                             <text x="300" y="47" text-anchor="middle" font-size="14">⚙️</text>
                         </g>
                         
+                        <!-- Solar PV Panels (on Roof) -->
+                        <g id="solarIcon" opacity="0">
+                            <rect x="310" y="25" width="35" height="30" fill="#1E88E5" stroke="#0277BD" stroke-width="2" rx="3"/>
+                            <text x="327" y="47" text-anchor="middle" font-size="14">☀️</text>
+                        </g>
+                        
                         <!-- HVAC System (in Attic) -->
                         <g id="hvacIcon" opacity="0">
-                            <rect x="320" y="25" width="30" height="30" fill="#4DB8FF" stroke="#0277BD" stroke-width="2" rx="3"/>
-                            <text x="335" y="47" text-anchor="middle" font-size="14">❄️</text>
+                            <rect x="350" y="25" width="30" height="30" fill="#4DB8FF" stroke="#0277BD" stroke-width="2" rx="3"/>
+                            <text x="365" y="47" text-anchor="middle" font-size="14">❄️</text>
                         </g>
                         
                         <!-- Water level markers -->
@@ -192,9 +201,16 @@
                 </div>
 
                 <div class="defenses-container">
-                    <h3>🛡️ Active Defenses</h3>
+                    <h3>🛡️ Active Defenses (<span id="defenseCount">0</span>/3)</h3>
                     <div id="defensesList" class="defenses-list">
                         <p style="color: #999; font-size: 12px;">No active defenses</p>
+                    </div>
+                </div>
+
+                <div class="news-container">
+                    <h3>📰 News</h3>
+                    <div id="newsHeadline" class="news-item">
+                        <p style="color: #999; font-size: 11px;">Check back for updates...</p>
                     </div>
                 </div>
             </div>
@@ -207,14 +223,23 @@
                 <div class="resource-meter">
                     <div class="resource-fill" id="elixirFill"></div>
                 </div>
-                <span class="resource-value"><span id="elixirCurrent">5</span>/20</span>
+                <span class="resource-value"><span id="elixirCurrent">2</span>/20</span>
             </div>
         </div>
 
         <!-- Card Selection -->
         <div class="cards-container">
-            <h3>Available Defenses - Drag to Deploy</h3>
+            <h3>Available Defenses - Drag to Deploy (Max 3 between hurricanes)</h3>
             <div class="cards-grid" id="cardsGrid"></div>
+        </div>
+
+        <!-- Hurricane Report Modal -->
+        <div class="modal" id="hurricaneReportModal">
+            <div class="modal-content hurricane-report">
+                <h2 id="hurricaneReportTitle">Hurricane Damage Report</h2>
+                <div id="hurricaneReportContent"></div>
+                <button onclick="closeHurricaneReport()" class="btn btn-primary">Continue</button>
+            </div>
         </div>
 
         <!-- Game Over Modal -->
@@ -230,7 +255,7 @@
         <div class="modal" id="infoModal">
             <div class="modal-content">
                 <h2>How to Play</h2>
-                <p><strong>Objective:</strong> Protect your Miami house from increasingly severe hurricanes from 2025 to 2100!</p>
+                <p><strong>Objective:</strong> Protect your Miami house from increasingly severe hurricanes (Cat 1-5) from 2025 to 2100!</p>
                 <p><strong>Win Condition:</strong> Keep these 4 systems functional:</p>
                 <ul>
                     <li>🛏️ Bedroom (2nd Floor)</li>
@@ -238,21 +263,23 @@
                     <li>⚡ Electrical System (Attic)</li>
                     <li>❄️ Cooling System (Attic)</li>
                 </ul>
-                <p><strong>Defense Cards:</strong></p>
+                <p><strong>Defense Cards (Max 3 active between hurricanes):</strong></p>
                 <ul>
-                    <li><strong>Dikes/Levees:</strong> Build protective barriers. Cost scales with height (1 elixir per foot). Permanent.</li>
-                    <li><strong>Elevate Structure:</strong> Raise entire house 3 feet. Cost 4 elixir. Can stack! Permanent.</li>
-                    <li><strong>Backup Generator:</strong> Protects electrical system. Cost 3 elixir. Downtime 3 days if it fails.</li>
-                    <li><strong>Aerodynamic Roof:</strong> Strengthens roof. Cost 2 elixir. Downtime 2 days if it fails.</li>
-                    <li><strong>Hurricane Room:</strong> Build reinforced safe room. Cost 5 elixir. Immune to flooding. Permanent.</li>
+                    <li><strong>Dikes/Levees:</strong> 2 elixir/ft. Build barriers. Permanent.</li>
+                    <li><strong>Elevate Structure:</strong> 15 elixir/ft. Raises house. Permanent.</li>
+                    <li><strong>Backup Generator:</strong> 6 elixir. Protects electrical. 4-day downtime if fails.</li>
+                    <li><strong>Aerodynamic Roof:</strong> 5 elixir. Strengthens roof. 2-day downtime if fails.</li>
+                    <li><strong>Solar PV Panels:</strong> 9 elixir. 75% failure rate. Synergizes with generator. 5-day downtime if fails.</li>
+                    <li><strong>Hurricane Room:</strong> 13 elixir. Safe room. Flood-proof. Permanent.</li>
                 </ul>
                 <p><strong>Game Mechanics:</strong></p>
                 <ul>
-                    <li>⛅ Normal Days: Budget regenerates. Safe to build.</li>
-                    <li>🌀 Hurricane Days: Defenses can fail if not prepared. Budget regenerates slowly.</li>
-                    <li>🌊 Sea level rises 5 feet by 2100 (from 3 ft baseline)</li>
-                    <li>💨 Wind speeds reach 150+ mph by 2100</li>
-                    <li>Cards last forever once deployed (unless they fail on a hurricane day)</li>
+                    <li>⛅ Normal Weeks: Budget regenerates slowly. Plan your defenses carefully.</li>
+                    <li>🌀 Hurricane Weeks: Each hurricane has a name and category (1-5). Defenses can fail! Pay repair costs after.</li>
+                    <li>💨 Higher categories more likely over time</li>
+                    <li>🌊 Sea level rises 5 feet by 2100</li>
+                    <li>💰 Repair costs scale with hurricane strength and damage</li>
+                    <li>📰 Read climate news headlines for immersion</li>
                 </ul>
                 <button onclick="closeInfo()" class="btn btn-primary">Start Game</button>
             </div>
