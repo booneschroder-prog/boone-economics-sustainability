@@ -11,7 +11,7 @@ const gameState = {
     waterHeight: 0,
     maxWaterHeight: 15,
     isHurricaneDay: false,
-    dailyCounter: 0,
+    windSpeed: 5,
     
     systems: {
         bedroom: { name: 'Bedroom', icon: '🛏️', element: 'systemBedroom', floorLevel: 2 },
@@ -22,7 +22,7 @@ const gameState = {
     }
 };
 
-// Defense cards with consistent properties
+// Defense cards - defenses only fail on hurricane days
 const cards = [
     {
         id: 'dikes',
@@ -41,20 +41,20 @@ const cards = [
         name: 'Abandon Lower Floors',
         icon: '🏃',
         cost: 1,
-        chanceOfDamage: 1.0,
+        chanceOfDamage: 0.3,
         downtime: 0,
-        description: 'Evacuate to upper floors',
+        description: 'Relocate to upper floors',
         effect: (state) => {
-            // Mark as using upper floors only
+            // Protects ground/1st floor systems
         }
     },
     {
         id: 'elevate',
         name: 'Elevate Structure',
         icon: '🏗️',
-        cost: 6,
-        chanceOfDamage: 0.1,
-        downtime: 24,
+        cost: 5,
+        chanceOfDamage: 0.05,
+        downtime: 12,
         description: 'Raise entire house (+3ft)',
         effect: (state) => {
             // Permanent elevation bonus
@@ -64,9 +64,9 @@ const cards = [
         id: 'generator',
         name: 'Backup Generator',
         icon: '⚙️',
-        cost: 5,
-        chanceOfDamage: 0.05,
-        downtime: 12,
+        cost: 4,
+        chanceOfDamage: 0.2,
+        downtime: 10,
         description: 'Backup power supply',
         effect: (state) => {
             // Protects electrical
@@ -76,9 +76,9 @@ const cards = [
         id: 'aerodynamic',
         name: 'Aerodynamic Roof',
         icon: '🌪️',
-        cost: 4,
-        chanceOfDamage: 0.2,
-        downtime: 12,
+        cost: 3,
+        chanceOfDamage: 0.25,
+        downtime: 10,
         description: 'Wind-resistant roof',
         effect: (state) => {
             // Reduces wind damage
@@ -88,9 +88,9 @@ const cards = [
         id: 'hurricane-room',
         name: 'Hurricane Room',
         icon: '🏠',
-        cost: 3,
-        chanceOfDamage: 0.0,
-        downtime: 12,
+        cost: 2,
+        chanceOfDamage: 0.1,
+        downtime: 8,
         description: 'Reinforced safe room',
         effect: (state) => {
             // Guaranteed protection
@@ -100,7 +100,6 @@ const cards = [
 
 // Calculate hurricane probability based on year
 function getHurricaneChance(year) {
-    // Probability increases from 5% in 2025 to 40% in 2100
     const yearsElapsed = year - 2025;
     const baseProbability = 0.05;
     const maxProbability = 0.40;
@@ -110,15 +109,22 @@ function getHurricaneChance(year) {
 
 // Calculate sea level rise based on year
 function getSeaLevelRise(year) {
-    // Sea level rises from 0 ft in 2025 to 4 ft in 2100
     const yearsElapsed = year - 2025;
     return (yearsElapsed / 75) * 4;
+}
+
+// Calculate maximum wind speed based on year
+function getMaxWindSpeed(year) {
+    const yearsElapsed = year - 2025;
+    const baseWind = 50;
+    const maxWind = 180;
+    const increase = (maxWind - baseWind) / 75;
+    return baseWind + (yearsElapsed * increase);
 }
 
 // Determine if today is a hurricane day
 function determineHurricaneDay(year, dayOfYear) {
     const hurricaneChance = getHurricaneChance(year);
-    // Use day-based seeding for consistency
     const seed = (year * 365 + dayOfYear) % 100;
     return seed < (hurricaneChance * 100);
 }
@@ -161,7 +167,7 @@ function renderCards() {
             <div class="card-name">${card.name}</div>
             <div class="card-cost">Cost: ${card.cost} 💰</div>
             <div class="card-stats">
-                <div>Damage: ${(card.chanceOfDamage * 100).toFixed(0)}%</div>
+                <div>Risk: ${(card.chanceOfDamage * 100).toFixed(0)}%*</div>
                 <div>Downtime: ${card.downtime}h</div>
             </div>
         `;
@@ -173,6 +179,14 @@ function renderCards() {
 
         cardsGrid.appendChild(cardElement);
     });
+    
+    // Add note about hurricane days
+    const note = document.createElement('p');
+    note.style.fontSize = '11px';
+    note.style.color = '#666';
+    note.style.marginTop = '10px';
+    note.innerHTML = '* Defenses only fail on HURRICANE DAYS. Safe to build on normal days!';
+    document.querySelector('.cards-container').appendChild(note);
 }
 
 // Drag and drop
@@ -198,8 +212,10 @@ function playCard(cardId) {
 
     gameState.elixir -= card.cost;
 
-    // Check for failure
-    if (Math.random() < card.chanceOfDamage) {
+    // Defenses only fail on hurricane days
+    const failChance = gameState.isHurricaneDay ? card.chanceOfDamage : 0;
+    
+    if (Math.random() < failChance) {
         addDefense(card, true);
         damageRandomSystem();
     } else {
@@ -211,7 +227,7 @@ function playCard(cardId) {
     if (card.downtime > 0) {
         setTimeout(() => {
             removeDefense(cardId);
-        }, card.downtime * 3000); // Scale down for demo
+        }, card.downtime * 3000);
     }
 
     updateUI();
@@ -246,18 +262,20 @@ function damageRandomSystem() {
 
 // Damage specific system
 function damageSystem(systemKey) {
-    gameState.downedSystems.add(systemKey);
-    const systemElement = document.getElementById(gameState.systems[systemKey].element);
-    systemElement.classList.add('damaged');
+    if (!gameState.downedSystems.has(systemKey)) {
+        gameState.downedSystems.add(systemKey);
+        const systemElement = document.getElementById(gameState.systems[systemKey].element);
+        systemElement.classList.add('damaged');
 
-    // Recovery after delay
-    setTimeout(() => {
-        if (!isSystemUnderWater(systemKey)) {
-            gameState.downedSystems.delete(systemKey);
-            const systemElement = document.getElementById(gameState.systems[systemKey].element);
-            systemElement.classList.remove('damaged');
-        }
-    }, 20000);
+        // Recovery on normal days
+        setTimeout(() => {
+            if (!isSystemUnderWater(systemKey) && !gameState.isHurricaneDay) {
+                gameState.downedSystems.delete(systemKey);
+                const systemElement = document.getElementById(gameState.systems[systemKey].element);
+                systemElement.classList.remove('damaged');
+            }
+        }, 15000);
+    }
 }
 
 // Check if system is underwater
@@ -287,77 +305,141 @@ function updateDefensesList() {
     });
 }
 
+// Draw rain on SVG
+function drawRain() {
+    const rainContainer = document.getElementById('rainContainer');
+    rainContainer.innerHTML = '';
+    
+    if (!gameState.isHurricaneDay) return;
+    
+    for (let i = 0; i < 20; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', Math.random() * 800);
+        line.setAttribute('y1', Math.random() * 200);
+        line.setAttribute('x2', Math.random() * 800);
+        line.setAttribute('y2', Math.random() * 200 + 50);
+        line.setAttribute('stroke', '#4DB8FF');
+        line.setAttribute('stroke-width', '2');
+        rainContainer.appendChild(line);
+    }
+    
+    rainContainer.style.opacity = gameState.isHurricaneDay ? '0.8' : '0';
+}
+
+// Draw wind particles
+function drawWind() {
+    const windContainer = document.getElementById('windContainer');
+    windContainer.innerHTML = '';
+    
+    if (!gameState.isHurricaneDay) return;
+    
+    for (let i = 0; i < 15; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', Math.random() * 100);
+        line.setAttribute('y1', Math.random() * 300);
+        line.setAttribute('x2', Math.random() * 100 + 50);
+        line.setAttribute('y2', Math.random() * 300);
+        line.setAttribute('stroke', '#CCCCCC');
+        line.setAttribute('stroke-width', '1');
+        line.setAttribute('opacity', '0.6');
+        windContainer.appendChild(line);
+    }
+    
+    windContainer.style.opacity = gameState.windSpeed > 30 ? '0.7' : '0';
+}
+
+// Draw debris
+function drawDebris() {
+    const debrisContainer = document.getElementById('debrisContainer');
+    debrisContainer.innerHTML = '';
+    
+    if (!gameState.isHurricaneDay) return;
+    
+    const debris = ['🪵', '📦', '🌳', '⚡'];
+    for (let i = 0; i < 10; i++) {
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', Math.random() * 800);
+        text.setAttribute('y', Math.random() * 300);
+        text.setAttribute('font-size', '20');
+        text.textContent = debris[Math.floor(Math.random() * debris.length)];
+        debrisContainer.appendChild(text);
+    }
+    
+    debrisContainer.style.opacity = gameState.windSpeed > 70 ? '0.6' : '0';
+}
+
 // Update UI
 function updateUI() {
-    // Calculate current year and day
     const dayOfYear = gameState.daysElapsed % 365;
     const yearsElapsed = Math.floor(gameState.daysElapsed / 365);
     gameState.currentYear = 2025 + yearsElapsed;
 
-    // Update time displays
     document.getElementById('year').textContent = gameState.currentYear;
     document.getElementById('daysElapsed').textContent = gameState.daysElapsed;
 
-    // Determine season
     let season = 'Winter';
     if (dayOfYear >= 80 && dayOfYear < 172) season = 'Spring';
     else if (dayOfYear >= 172 && dayOfYear < 264) season = 'Summer';
     else if (dayOfYear >= 264 && dayOfYear < 355) season = 'Fall';
     document.getElementById('season').textContent = season;
 
-    // Determine if hurricane day
     gameState.isHurricaneDay = determineHurricaneDay(gameState.currentYear, dayOfYear);
 
-    // Update day status
     const dayStatusElement = document.getElementById('dayStatus');
     const headerElement = document.getElementById('headerBackground');
-    const floodVizElement = document.getElementById('floodVisualization');
+    const skyBackground = document.getElementById('skyBackground');
+    const weatherIndicator = document.getElementById('weatherIndicator');
 
     if (gameState.isHurricaneDay) {
         dayStatusElement.textContent = '🌀 HURRICANE DAY';
         headerElement.classList.add('hurricane-day');
-        floodVizElement.classList.add('hurricane-day');
+        skyBackground.setAttribute('fill', '#4a5568');
+        weatherIndicator.setAttribute('fill', '#FF6B35');
     } else {
         dayStatusElement.textContent = '☀️ Normal Day';
         headerElement.classList.remove('hurricane-day');
-        floodVizElement.classList.remove('hurricane-day');
+        skyBackground.setAttribute('fill', '#87CEEB');
+        weatherIndicator.setAttribute('fill', '#FFD700');
     }
 
-    // Calculate environmental factors
     const seaLevelRise = getSeaLevelRise(gameState.currentYear);
+    const maxWindSpeed = getMaxWindSpeed(gameState.currentYear);
     const hurricaneChance = getHurricaneChance(gameState.currentYear) * 100;
 
-    // Update weather info
-    let windSpeed = '5 mph';
+    let windSpeed = 5;
     let stormSurge = 0;
-    let waterHeightDisplay = gameState.waterHeight.toFixed(1);
 
     if (gameState.isHurricaneDay) {
-        windSpeed = (50 + Math.random() * 100).toFixed(0) + ' mph';
-        stormSurge = (2 + Math.random() * 8).toFixed(1);
-        gameState.waterHeight += parseFloat(stormSurge) * 0.3;
+        windSpeed = 50 + Math.random() * (maxWindSpeed - 50);
+        stormSurge = 2 + Math.random() * 8;
+        gameState.waterHeight += stormSurge * 0.2;
     }
 
-    document.getElementById('windSpeed').textContent = windSpeed;
-    document.getElementById('stormSurge').textContent = stormSurge + ' ft';
+    gameState.windSpeed = windSpeed;
+
+    document.getElementById('windSpeed').textContent = windSpeed.toFixed(0) + ' mph';
+    document.getElementById('stormSurge').textContent = stormSurge.toFixed(1) + ' ft';
     document.getElementById('waterHeight').textContent = (gameState.waterHeight + seaLevelRise).toFixed(1) + ' ft';
     document.getElementById('seaLevelRise').textContent = seaLevelRise.toFixed(1) + ' ft';
     document.getElementById('hurricaneChance').textContent = hurricaneChance.toFixed(1) + '%';
 
-    // Water level visualization
+    // Update water level visualization
     const totalWaterHeight = gameState.waterHeight + seaLevelRise;
     const waterPercentage = Math.min((totalWaterHeight / gameState.maxWaterHeight) * 100, 100);
-    document.getElementById('waterLevel').style.height = waterPercentage + '%';
+    
+    const waterLevelElement = document.getElementById('waterLevel');
+    waterLevelElement.setAttribute('y', 400 - (waterPercentage * 2));
+    waterLevelElement.setAttribute('height', waterPercentage * 2);
 
-    // Update floor colors
-    updateFloorColors(seaLevelRise);
+    updateFloorColors(totalWaterHeight);
+    drawRain();
+    drawWind();
+    drawDebris();
 
-    // Elixir
     document.getElementById('elixirCurrent').textContent = gameState.elixir.toFixed(1);
     const elixirPercentage = (gameState.elixir / gameState.maxElixir) * 100;
     document.getElementById('elixirFill').style.width = elixirPercentage + '%';
 
-    // Update system status
     Object.keys(gameState.systems).forEach(systemKey => {
         const systemElement = document.getElementById(gameState.systems[systemKey].element);
         const isUnderWater = isSystemUnderWater(systemKey);
@@ -378,23 +460,21 @@ function updateUI() {
     });
 }
 
-// Update floor colors
-function updateFloorColors(seaLevelRise) {
+// Update floor colors based on water height
+function updateFloorColors(totalWaterHeight) {
     const floors = [
-        { element: 'floorGround', level: 0, height: 0 },
-        { element: 'floorFirst', level: 1, height: 3 },
-        { element: 'floorSecond', level: 2, height: 6 },
-        { element: 'floorRoof', level: 3, height: 9 }
+        { element: 'floor0', height: 0 },
+        { element: 'floor1', height: 3 },
+        { element: 'floor2', height: 6 }
     ];
-
-    const totalWaterHeight = gameState.waterHeight + seaLevelRise;
 
     floors.forEach(floor => {
         const element = document.getElementById(floor.element);
-        if (totalWaterHeight > floor.height) {
-            element.classList.add('flooded');
-        } else {
-            element.classList.remove('flooded');
+        if (element && totalWaterHeight > floor.height) {
+            element.style.fill = '#1565C0';
+        } else if (element) {
+            element.style.fill = element.id === 'floor0' ? '#A0826D' : 
+                                 element.id === 'floor1' ? '#C19A6B' : '#D4A574';
         }
     });
 }
@@ -419,34 +499,30 @@ function checkLoseCondition() {
     return allSystemsDown || totalWaterHeight > gameState.maxWaterHeight;
 }
 
-// Game loop - advances one day per iteration
+// Game loop
 function gameLoop() {
     if (!gameState.gameRunning) return;
 
-    // Advance to next day
     gameState.daysElapsed++;
 
-    // Regenerate elixir during normal days
+    // Regenerate elixir - 3x faster on normal days
     if (!gameState.isHurricaneDay && gameState.elixir < gameState.maxElixir) {
         gameState.elixir += 0.3;
         gameState.elixir = Math.min(gameState.elixir, gameState.maxElixir);
-    }
-
-    // During hurricane days, slow regeneration
-    if (gameState.isHurricaneDay && gameState.elixir < gameState.maxElixir) {
-        gameState.elixir += 0.05;
+    } else if (gameState.isHurricaneDay && gameState.elixir < gameState.maxElixir) {
+        gameState.elixir += 0.1;
         gameState.elixir = Math.min(gameState.elixir, gameState.maxElixir);
     }
 
-    // Water gradually recedes during normal days
+    // Water gradually recedes on normal days
     if (!gameState.isHurricaneDay) {
-        gameState.waterHeight = Math.max(0, gameState.waterHeight - 0.5);
+        gameState.waterHeight = Math.max(0, gameState.waterHeight - 0.3);
     }
 
     updateUI();
     renderCards();
 
-    // Check game over
+    // Check game completion (75 years)
     if (gameState.daysElapsed >= gameState.totalDays) {
         endGame(true);
         return;
@@ -457,7 +533,6 @@ function gameLoop() {
         return;
     }
 
-    // Game speed: 1 real second = 1 day in game
     setTimeout(gameLoop, 1000);
 }
 
@@ -473,7 +548,7 @@ function endGame(won) {
     const maxWater = gameState.waterHeight + seaLevelRise;
 
     if (won) {
-        title.textContent = '✓ Victory! You Protected Miami!';
+        title.textContent = '✓ Victory! You Protected Miami for 75 Years!';
     } else {
         title.textContent = '✗ Defeat! Your systems failed.';
     }
@@ -492,8 +567,12 @@ function endGame(won) {
             <strong>${maxWater.toFixed(1)} ft</strong>
         </div>
         <div class="stat-line">
-            <span>Sea Level Rise:</span>
+            <span>Final Sea Level Rise:</span>
             <strong>${seaLevelRise.toFixed(1)} ft</strong>
+        </div>
+        <div class="stat-line">
+            <span>Max Wind Speed:</span>
+            <strong>${getMaxWindSpeed(gameState.currentYear).toFixed(0)} mph</strong>
         </div>
         <div class="stat-line">
             <span>Defenses Deployed:</span>
