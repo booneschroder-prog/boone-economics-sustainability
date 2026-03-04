@@ -72,162 +72,40 @@ body {
 
 /* Game Board */
 .game-board {
+    padding: 20px;
+    flex: 1;
+}
+
+.environment-container {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
-    padding: 20px;
-    flex: 1;
-}
-
-.house-container {
-    display: flex;
-    gap: 20px;
-}
-
-.house-status {
-    background: #f5f5f5;
-    border-radius: 10px;
-    padding: 20px;
-    flex: 1;
-}
-
-.house-status h2 {
-    color: #1e3c72;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.systems-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-.system {
-    background: white;
-    border: 2px solid #4CAF50;
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: default;
-}
-
-.system.damaged {
-    background: #ffebee;
-    border-color: #f44336;
-}
-
-.system.down {
-    background: #fff3e0;
-    border-color: #ff9800;
-    opacity: 0.7;
-}
-
-.system-icon {
-    display: block;
-    font-size: 24px;
-    margin-bottom: 5px;
-}
-
-.system-name {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.system-status {
-    display: block;
-    font-size: 14px;
-    font-weight: bold;
-    color: #4CAF50;
-}
-
-.system.damaged .system-status {
-    color: #f44336;
-}
-
-/* Flood Visualization */
-.flood-visualization {
-    background: linear-gradient(180deg, #e3f2fd 0%, #0277bd 100%);
-    border-radius: 10px;
-    padding: 20px;
-    position: relative;
-    height: 300px;
-    overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    transition: background 0.5s ease;
-}
-
-.flood-visualization.hurricane-day {
-    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-}
-
-.water-level {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(180deg, rgba(33, 150, 243, 0.7) 0%, rgba(1, 119, 189, 0.9) 100%);
-    height: 0%;
-    transition: height 0.5s ease;
-    z-index: 1;
-}
-
-.house-floors {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
     height: 100%;
 }
 
-.floor {
-    height: 60px;
-    background: linear-gradient(180deg, #d4a574 0%, #8b7355 100%);
-    border: 2px solid #654321;
-    border-radius: 5px;
-    margin: 5px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: background 0.3s ease;
+.environment-svg {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    background: #e3f2fd;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.floor.flooded {
-    background: linear-gradient(180deg, #0277bd 0%, #01579b 100%);
-    border-color: #0277bd;
-}
-
-.floor-label {
-    font-weight: bold;
-    color: #333;
-    font-size: 12px;
-}
-
-.floor.flooded .floor-label {
-    color: white;
-}
-
-/* Weather Stats */
+/* Weather Stats Sidebar */
 .weather-stats {
     background: #f5f5f5;
     border-radius: 10px;
     padding: 20px;
-    grid-column: 2;
-    grid-row: 1 / 3;
+    overflow-y: auto;
+    max-height: 600px;
 }
 
 .weather-stats h3 {
     color: #1e3c72;
     margin-bottom: 15px;
     font-size: 16px;
+    margin-top: 0;
 }
 
 .weather-info {
@@ -269,18 +147,79 @@ body {
     50% { opacity: 0.6; }
 }
 
+/* Systems Grid */
+.systems-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.system {
+    background: white;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+    font-size: 12px;
+}
+
+.system.damaged {
+    background: #ffebee;
+    border-color: #f44336;
+}
+
+.system.down {
+    background: #fff3e0;
+    border-color: #ff9800;
+    opacity: 0.7;
+}
+
+.system-icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 3px;
+}
+
+.system-name {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.system-status {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.system.damaged .system-status {
+    color: #f44336;
+}
+
+/* Defenses List */
 .defenses-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
 }
 
 .defense-item {
-    background: white;
+    background: #f5f5f5;
     border-left: 4px solid #667eea;
-    padding: 10px;
+    padding: 8px;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .defense-item-name {
@@ -290,8 +229,8 @@ body {
 
 .defense-item-status {
     color: #666;
-    font-size: 11px;
-    margin-top: 3px;
+    font-size: 10px;
+    margin-top: 2px;
 }
 
 .defense-item.inactive {
@@ -509,17 +448,12 @@ body {
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .game-board {
+    .environment-container {
         grid-template-columns: 1fr;
     }
 
     .weather-stats {
-        grid-column: 1;
-        grid-row: auto;
-    }
-
-    .house-container {
-        flex-direction: column;
+        max-height: none;
     }
 }
 
