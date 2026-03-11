@@ -29,6 +29,16 @@ body {
     text-align: center;
 }
 
+.header.hurricane-day {
+    background: linear-gradient(135deg, #8b0000 0%, #ff4500 100%);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
 .header h1 {
     font-size: 24px;
     margin-bottom: 10px;
@@ -63,7 +73,7 @@ body {
     padding: 20px;
     flex: 1;
     position: relative;
-    min-height: 300px;
+    min-height: 350px;
 }
 
 .house {
@@ -71,6 +81,8 @@ body {
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .roof, .floor2, .floor1, .floor0 {
@@ -79,22 +91,65 @@ body {
     border-radius: 4px;
     text-align: center;
     font-weight: bold;
+    transition: background 0.3s, color 0.3s;
 }
 
-.roof { background: #D32F2F; color: white; }
-.floor2 { background: #D4A574; }
-.floor1 { background: #C19A6B; }
-.floor0 { background: #A0826D; }
+.roof { 
+    background: #D32F2F; 
+    color: white; 
+}
+
+.floor2 { 
+    background: #FFD700; 
+    color: #333;
+    border: 3px solid #FF6B00;
+}
+
+.floor1 { 
+    background: #C19A6B; 
+}
+
+.floor0 { 
+    background: #A0826D; 
+}
+
+.floor-title {
+    font-size: 12px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.room {
+    display: inline-block;
+    padding: 6px 10px;
+    margin: 3px;
+    background: white;
+    border-radius: 3px;
+    font-size: 12px;
+    border: 1px solid #333;
+}
+
+.floor2.flooded {
+    background: #0277BD;
+    color: white;
+}
+
+.floor2.flooded .room {
+    background: #1565C0;
+    color: white;
+}
 
 .water {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #1565C0;
-    opacity: 0.6;
+    background: linear-gradient(180deg, #64B5F6 0%, #1565C0 100%);
+    opacity: 0.7;
     height: 0%;
     transition: height 0.3s;
+    z-index: 0;
+    border-radius: 0 0 8px 8px;
 }
 
 .stats {
@@ -110,11 +165,18 @@ body {
 }
 
 .system-item {
-    padding: 8px;
-    margin: 5px 0;
+    padding: 10px;
+    margin: 8px 0;
     background: white;
     border-left: 4px solid #4CAF50;
     border-radius: 4px;
+    font-weight: bold;
+}
+
+.system-item.critical {
+    background: #fff3e0;
+    border-left-color: #ff6b6b;
+    color: #d32f2f;
 }
 
 .right-panel {
@@ -130,6 +192,7 @@ body {
     border-radius: 8px;
     flex: 1;
     min-height: 120px;
+    overflow-y: auto;
 }
 
 .forecast h3, .news h3, .defenses h3 {
@@ -146,11 +209,13 @@ body {
     border-radius: 4px;
     font-size: 11px;
     border: 1px solid #ddd;
+    text-align: center;
 }
 
 .forecast-item.hurricane {
     background: #ffe5e5;
     border-color: #ff6b6b;
+    font-weight: bold;
 }
 
 .news-item {
@@ -172,13 +237,18 @@ body {
     font-size: 11px;
 }
 
+.defense-item.failed {
+    opacity: 0.5;
+    border-left-color: #ccc;
+}
+
 .resource-bar {
     background: #f5f5f5;
     padding: 12px 15px;
     display: flex;
     align-items: center;
     gap: 15px;
-    font-size: 14px;
+    font-size: 13px;
     border-top: 1px solid #ddd;
 }
 
@@ -188,7 +258,7 @@ body {
     background: #ddd;
     border-radius: 10px;
     overflow: hidden;
-    max-width: 200px;
+    max-width: 150px;
 }
 
 .fill {
@@ -231,6 +301,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .card:hover:not(.unavailable) {
@@ -241,6 +312,11 @@ body {
 .card.unavailable {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.card.dragging {
+    opacity: 0.7;
+    cursor: grabbing;
 }
 
 .card-icon {
@@ -259,4 +335,9 @@ body {
     border-radius: 3px;
     font-size: 9px;
     margin-bottom: 4px;
+}
+
+.card-stats {
+    font-size: 8px;
+    opacity: 0.9;
 }
