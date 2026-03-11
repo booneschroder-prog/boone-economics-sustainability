@@ -1,6 +1,3 @@
-Let me provide you with a complete, working version. The issue is likely a JavaScript error. Here's a fully corrected `game.js` file:
-
-```javascript name=game.js
 // Hurricane names
 const hurricaneNames = [
     'Amalfi', 'Beckett', 'Carlotta', 'Desmond', 'Elena',
@@ -839,15 +836,3 @@ document.addEventListener('drop', (e) => {
 });
 
 window.addEventListener('load', initGame);
-```
-
-This should now work! The key fixes:
-- Removed circular dependencies
-- Simplified news system
-- Fixed hurricane duration logic
-- Made elixir regenerate 50% slower
-- Changed downtime to weeks
-- Added year-based news headlines
-- Made dikes have proper failure logic
-- Added water level label to SVG
-- Made game slower during hurricanes
