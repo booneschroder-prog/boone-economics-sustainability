@@ -21,42 +21,49 @@
             <div class="left-panel">
                 <div class="viz">
                     <div class="house">
-                        <div class="roof">Roof</div>
-                        <div class="floor2">2nd Floor</div>
-                        <div class="floor1">1st Floor</div>
-                        <div class="floor0">Ground</div>
+                        <div class="roof">🏠 Roof/Attic</div>
+                        <div class="floor2">
+                            <div class="floor-title">2nd Floor - CRITICAL</div>
+                            <div class="room">🛏️ Bedroom</div>
+                            <div class="room">🚿 Bathroom</div>
+                            <div class="room">⚡ Electrical</div>
+                            <div class="room">❄️ Cooling</div>
+                        </div>
+                        <div class="floor1">1st Floor - Living Room</div>
+                        <div class="floor0">Ground Floor - Kitchen/Garage</div>
                     </div>
                     <div class="water" id="water"></div>
                 </div>
                 <div class="stats">
-                    <h3>Systems</h3>
+                    <h3>Critical Systems Status</h3>
                     <div id="systems"></div>
                 </div>
             </div>
 
             <div class="right-panel">
                 <div class="forecast">
-                    <h3>Forecast</h3>
+                    <h3>🌦️ 10-Week Forecast</h3>
                     <div id="forecast"></div>
                 </div>
                 <div class="news">
-                    <h3>News</h3>
+                    <h3>📰 News</h3>
                     <div id="news">Loading...</div>
                 </div>
                 <div class="defenses">
-                    <h3>Defenses</h3>
+                    <h3>🛡️ Active Defenses</h3>
                     <div id="defensesList"></div>
                 </div>
             </div>
         </div>
 
         <div class="resource-bar">
-            <span>Budget: <span id="elixir">2</span>/20</span>
+            <span>💰 Budget: <span id="elixir">2</span>/20</span>
             <div class="meter"><div class="fill" id="fill"></div></div>
+            <span style="margin-left: 30px;">💧 Water Height: <span id="waterHeight">0</span> ft</span>
         </div>
 
         <div class="cards">
-            <h3>Defenses</h3>
+            <h3>Available Defenses - Drag to Deploy</h3>
             <div id="cardsGrid"></div>
         </div>
     </div>
