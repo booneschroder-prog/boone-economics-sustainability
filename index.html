@@ -1,73 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hurricane Resilience Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hurricane Resilience: Miami Defense</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1>🌀 Hurricane Resilience: Miami Defense</h1>
-            <div class="header-stats">
-                <div>Year: <span id="year">2025</span></div>
-                <div>Week: <span id="week">1</span></div>
-                <div>Status: <span id="status">Normal</span></div>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div class="left-panel">
-                <div class="viz">
-                    <div class="house">
-                        <div class="roof">🏠 Roof/Attic</div>
-                        <div class="floor2">
-                            <div class="floor-title">2nd Floor - CRITICAL</div>
-                            <div class="room">🛏️ Bedroom</div>
-                            <div class="room">🚿 Bathroom</div>
-                            <div class="room">⚡ Electrical</div>
-                            <div class="room">❄️ Cooling</div>
-                        </div>
-                        <div class="floor1">1st Floor - Living Room</div>
-                        <div class="floor0">Ground Floor - Kitchen/Garage</div>
-                    </div>
-                    <div class="water" id="water"></div>
-                </div>
-                <div class="stats">
-                    <h3>Critical Systems Status</h3>
-                    <div id="systems"></div>
-                </div>
-            </div>
-
-            <div class="right-panel">
-                <div class="forecast">
-                    <h3>🌦️ 10-Week Forecast</h3>
-                    <div id="forecast"></div>
-                </div>
-                <div class="news">
-                    <h3>📰 News</h3>
-                    <div id="news">Loading...</div>
-                </div>
-                <div class="defenses">
-                    <h3>🛡️ Active Defenses</h3>
-                    <div id="defensesList"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="resource-bar">
-            <span>💰 Budget: <span id="elixir">2</span>/20</span>
-            <div class="meter"><div class="fill" id="fill"></div></div>
-            <span style="margin-left: 30px;">💧 Water Height: <span id="waterHeight">0</span> ft</span>
-        </div>
-
-        <div class="cards">
-            <h3>Available Defenses - Drag to Deploy</h3>
-            <div id="cardsGrid"></div>
-        </div>
+  <div class="game-container">
+    <div class="header" id="header">
+      <h1>🌀 Hurricane Resilience: Miami Defense</h1>
+      <div class="header-stats">
+        <div>Year: <span id="year">2025</span></div>
+        <div>Week: <span id="week">1</span></div>
+        <div>Status: <span id="status">Loading…</span></div>
+      </div>
     </div>
 
-    <script src="game.js"></script>
+    <div class="main-content">
+      <div class="left-panel">
+        <div class="viz">
+          <div class="house">
+            <div class="roof">🏠 Roof / Attic</div>
+
+            <div class="floor2" id="floor2">
+              <div class="floor-title">2nd Floor — CRITICAL</div>
+
+              <div class="room-row">
+                <div class="room" id="roomBedroom">🛏️ Bedroom
+                  <div class="hp" id="hpBedroom"><span id="hpBedroomVal">100</span>/100</div>
+                </div>
+
+                <div class="room" id="roomBathroom">🚿 Bathroom
+                  <div class="hp" id="hpBathroom"><span id="hpBathroomVal">100</span>/100</div>
+                </div>
+              </div>
+
+              <div class="room-row">
+                <div class="room" id="roomElectric">⚡ Electrical
+                  <div class="hp" id="hpElectric"><span id="hpElectricVal">100</span>/100</div>
+                </div>
+
+                <div class="room" id="roomCooling">❄️ Cooling
+                  <div class="hp" id="hpCooling"><span id="hpCoolingVal">100</span>/100</div>
+                </div>
+              </div>
+
+              <div class="safe-room" id="safeRoomBadge" style="display:none;">
+                🛡️ Hurricane Room (substitutes Bedroom + Bathroom)
+                <div class="hp" id="hpSafeRoom"><span id="hpSafeRoomVal">0</span>/200</div>
+              </div>
+
+              <div class="construction" id="constructionBadge" style="display:none;">
+                ⏳ Construction in progress…
+              </div>
+            </div>
+
+            <div class="floorL" id="floorL">
+              <div class="floor-title">Lower Level (Ground + 1st)</div>
+              <div class="room-row">
+                <div class="room">🛋️ Living</div>
+                <div class="room">🚗 Garage</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="water" id="water"></div>
+          <div class="water-label" id="waterLabel">Water: 0.0 ft</div>
+          <div class="threshold-label" id="thresholdLabel">2nd floor flood threshold: 10.0 ft</div>
+        </div>
+
+        <div class="stats">
+          <h3>Critical Status</h3>
+          <div id="systems">Loading...</div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="forecast">
+          <h3>🌦️ 10-Week Forecast</h3>
+          <div id="forecast"></div>
+        </div>
+
+        <div class="news">
+          <h3>📰 News</h3>
+          <div id="news">Loading...</div>
+        </div>
+
+        <div class="defenses">
+          <h3>🛡️ Active Defenses</h3>
+          <div id="defensesList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-bar">
+      <span>💰 Budget: <span id="elixir">2.0</span>/20</span>
+      <div class="meter"><div class="fill" id="fill"></div></div>
+      <span class="meta">🌊 Sea level: <span id="seaLevel">3.0</span> ft</span>
+      <span class="meta">🏗️ Elevation: <span id="elevation">0</span> ft</span>
+      <span class="meta">🧱 Dikes: <span id="dikes">0</span> ft</span>
+      <span class="meta">🌀 Cat: <span id="cat">0</span></span>
+    </div>
+
+    <div class="cards">
+      <h3>Available Defenses — Drag to Deploy</h3>
+      <div id="cardsGrid"></div>
+      <div class="hint">Tip: No hurricanes first 10 weeks. Best long-term strategy: Elevate + Aerodynamic Roof + Hurricane Room.</div>
+    </div>
+  </div>
+
+  <!-- Repair / Post-hurricane modal -->
+  <div class="modal" id="repairModal" aria-hidden="true">
+    <div class="modal-content">
+      <h2 id="repairTitle">Repair Window</h2>
+      <div id="repairBody" class="modal-body"></div>
+
+      <div class="modal-actions">
+        <button class="btn" id="repairElectricBtn">Repair Electric</button>
+        <button class="btn" id="repairCoolingBtn">Repair Cooling</button>
+        <button class="btn primary" id="continueBtn">Continue</button>
+      </div>
+      <div class="modal-footnote" id="repairFootnote"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
